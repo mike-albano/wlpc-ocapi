@@ -1,0 +1,15 @@
+module interfaces {
+  yang-version "1";
+  namespace "http://example.net/yang/interfaces/";
+  prefix "interfaces-example";
+
+  container packet-counter {
+     description
+       "Container to hold packet counters.";
+     leaf rx-packets {
+       type uint32;
+       description
+         "Received packets on the interface.";
+     }
+  }
+}
