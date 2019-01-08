@@ -206,11 +206,12 @@ def main(unused_argv):
   # Change the following if you want. The first one will be 'open', second 'psk'
   student_ssids = ['student1_open', 'student1_psk']
   ap = _create_apobj(gnmi_target, ap_name, ap_mac, student_ssids)
-  #configs_lib.GnmiSetUp(ap)  # Set up gNMI for each AP.  ## TODO: Uncoment
+  if not FLAGS.dry_run:
+    configs_lib.GnmiSetUp(ap)  # Set up gNMI for each AP.
   if FLAGS.mode.lower() == 'provision':
     configs_lib.Provision(ap)
   if FLAGS.mode.lower() == 'configure':
-    # Applies configuration and returns the JSON full blob for DB write.
+    # Applies configuration and returns the full JSON blob for DB write.
     config_json = configs_lib.ConfigPhyMac(ap, student_ssids)
     dbclient = _create_db()  # Create DB and dbclient.
     dbjson = _prep_json(config_json, 'full_config', ap)  # Prep it for DB write.
