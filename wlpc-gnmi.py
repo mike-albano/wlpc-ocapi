@@ -200,7 +200,7 @@ def main(unused_argv):
   if not FLAGS.mode:
     print(constants.USAGE)
     sys.exit()
-  gnmi_target = 'albano.dynu.net:8080'  # This is target IP/FQDN:TCP_PORT.
+  gnmi_target = '192.168.1.50:8080'  # This is target IP/FQDN:TCP_PORT.
   ap_name = 'tester-01-albano.example.com'  # This is the AP FQDN you want to use.
   ap_mac = '00:11:74:87:C0:7F'  # You know what this is.
   # Change the following if you want. The first one will be 'open', second 'psk'
