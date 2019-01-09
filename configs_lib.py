@@ -145,7 +145,7 @@ def ConfigPhyMac(ap, student_ssids):
   else:
     r = gnmi_lib.Set(ap.stub, paths, ap.targetuser, ap.targetpass, json_value, 'update')
     print('provisioning succesfull, with the following gNMI SetResponse:\n', r)
-    return json.dumps(json_value, indent=2)
+    return json.dumps(json_value)
 
 
 def _int_fixer(js):

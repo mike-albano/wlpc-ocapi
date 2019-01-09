@@ -16,4 +16,5 @@ RUN python -m pip install --no-binary=protobuf -I grpcio-tools==1.15.0
 RUN python -m pip install pyang==1.7.5
 RUN python -m pip install pyangbind==0.8.1
 RUN python -m pip install influxdb==5.2.0
+RUN python -m pip install absl-py==0.6.1
 

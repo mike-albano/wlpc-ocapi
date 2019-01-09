@@ -1,8 +1,0 @@
-{
-  "openconfig-ap-manager:config": {
-    "country-code": "US", 
-    "mac": "00:11:74:87:C0:7F", 
-    "hostname": "tester-01-albano.example.com"
-  }, 
-  "openconfig-ap-manager:mac": "00:11:74:87:C0:7F"
-}
