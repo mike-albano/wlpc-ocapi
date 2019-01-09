@@ -232,6 +232,7 @@ def main(unused_argv):
       _config_diff(dbclient, 'ap_telemetry', ap)  # Compare State Vs Intent.
       # Get radio 0 channel utilization
       cu_state = json.loads(_get(ap, 'r0-state'))['openconfig-access-points:total-channel-utilization']
+      logging.info('Channel Utilization: %s', cu_state)
       dbjson = _prep_json(cu_state, 'channel_utilization', ap)  # Prep it for DB write.
       _write_db(dbclient, 'ap_telemetry', dbjson)  # Write config State JSON to DB.
       time.sleep(5)
