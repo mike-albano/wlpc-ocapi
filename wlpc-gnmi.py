@@ -119,11 +119,12 @@ def _get(ap, path):
   Returns:
     config_json: Full AP config in OC IETF_JSON.
   """
+  # Set up the gNMI path.
   if path == 'r0-config':  # Config shown here just for example.
     paths = gnmi_lib.ParsePath(gnmi_lib.PathNames(
         '/access-points/access-point[hostname=%s]/radios/radio[id=0]/config' %
         ap.ap_name))
-  elif path == 'r0-state':  # Set up the gNMI path.
+  elif path == 'r0-state':
     paths = gnmi_lib.ParsePath(gnmi_lib.PathNames(
         '/access-points/access-point[hostname=%s]/radios/radio[id=0]/state/' %
         ap.ap_name))
@@ -206,8 +207,8 @@ def main(unused_argv):
   if not FLAGS.mode:
     print(constants.USAGE)
     sys.exit()
-  gnmi_target = 'albano.example.net:8080'  # This is target IP/FQDN:TCP_PORT.
-  ap_name = 'tester-01-albano.example.com'  # This is the AP FQDN you want to use.
+  gnmi_target = 'albano.example.net:8080'  # Target IP/FQDN:TCP_PORT.
+  ap_name = 'tester-01-albano.example.net'  # Your desired AP FQDN.
   ap_mac = '00:11:74:87:C0:7F'  # You know what this is.
   # Change the following if you want. The first one will be 'open', second 'psk'
   student_ssids = ['student1_open', 'student1_psk']
@@ -220,12 +221,12 @@ def main(unused_argv):
     dbclient = _create_db()  # Create DB and dbclient.
     # Applies configuration and returns the full JSON blob for DB write.
     config_json = configs_lib.ConfigPhyMac(ap, student_ssids)
-    dbjson = _prep_json(config_json, 'full_config', ap)  # Prep it for DB write.
+    dbjson = _prep_json(config_json, 'config_intent', ap)  # Prep it for DB write.
     _write_db(dbclient, 'ap_telemetry', dbjson)  # Write Config JSON to DB.
   if FLAGS.mode.lower() == 'monitor':
     dbclient = _create_db()  # Create DB and dbclient.
     while True:
-      config_state = _get(ap, 'config_state')  # Get radio 0 State JSON
+      config_state = _get(ap, 'config_state')  # Get root of tree for AP.
       dbjson = _prep_json(config_state, 'config_state', ap)  # Prep it for DB write.
       _write_db(dbclient, 'ap_telemetry', dbjson)  # Write State JSON to DB.
       _config_diff(dbclient, 'ap_telemetry', ap)  # Compare State Vs Intent.
