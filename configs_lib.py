@@ -1,6 +1,7 @@
-"""Entry module for Mist/Arista provisioning.
+"""Configuration module for Mist/Arista provisioning.
 
-One 'could' populate this list of APs from a given heatmap.
+One 'could' populate a list of APs from a given heatmap for multi-ap
+configuration.
 """
 
 from __future__ import absolute_import

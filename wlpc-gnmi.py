@@ -207,7 +207,7 @@ def main(unused_argv):
   if not FLAGS.mode:
     print(constants.USAGE)
     sys.exit()
-  gnmi_target = 'albano.example.net:8080'  # Target IP/FQDN:TCP_PORT.
+  gnmi_target = '<target_ip_here>:8080'  # Target IP/FQDN:TCP_PORT.
   ap_name = 'tester-01-albano.example.net'  # Your desired AP FQDN.
   ap_mac = '00:11:74:87:C0:7F'  # You know what this is.
   # Change the following if you want. The first one will be 'open', second 'psk'
