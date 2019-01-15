@@ -65,7 +65,7 @@ def _get_grpcmetadata(ap):
     ap: AP Class object.
   """
   for vendor, oui in constants.VENDOR_OUI_DATA.iteritems():
-    if ':'.join(ap.mac.split(':')[:3]) in oui:
+    if ':'.join(ap.mac.lower().split(':')[:3]) in oui:
       if vendor == 'mist':
         ap.targetuser = constants.MIST_USER
         ap.targetpass = constants.MIST_PASS
@@ -209,7 +209,7 @@ def main(unused_argv):
     sys.exit()
   gnmi_target = '<target_ip_here>:8080'  # Target IP/FQDN:TCP_PORT.
   ap_name = 'tester-01-albano.example.net'  # Your desired AP FQDN.
-  ap_mac = '00:11:74:87:C0:7F'  # You know what this is.
+  ap_mac = '00:11:74:87:C0:7F'  # Your APs Eth MAC.
   # Change the following if you want. The first one will be 'open', second 'psk'
   student_ssids = ['student1_open', 'student1_psk']
   ap = _create_apobj(gnmi_target, ap_name, ap_mac, student_ssids)

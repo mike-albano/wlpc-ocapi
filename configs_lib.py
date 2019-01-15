@@ -23,9 +23,6 @@ access_point_configs = openconfig_access_points()
 
 FLAGS = flags.FLAGS
 
-_ARISTS_USER = constants.ARISTA_USER
-_ARISTS_PASS = constants.ARISTA_PASS
-
 class Error(Exception):
   """Module-level Exception class."""
 
@@ -40,7 +37,7 @@ def GnmiSetUp(ap):
     root_cert=six.moves.builtins.open('mist-ca.cert.pem', 'rb').read()
     creds = gnmi_lib.CreateCreds(ap.targetip, ap.targetport, root_cert)
     ap.stub = gnmi_lib.CreateStub(creds, ap.targetip, ap.targetport,
-                                  'openconfig.mist.zone')
+                                  'openconfig.mist.com')
   elif ap.targetport == '8080':  # Targt is AP
     creds = gnmi_lib.CreateCreds(ap.targetip, ap.targetport, None)
     ap.stub = gnmi_lib.CreateStub(creds, ap.targetip, ap.targetport,
@@ -145,7 +142,7 @@ def ConfigPhyMac(ap, student_ssids):
     sys.exit()
   else:
     r = gnmi_lib.Set(ap.stub, paths, ap.targetuser, ap.targetpass, json_value, 'update')
-    print('provisioning succesfull, with the following gNMI SetResponse:\n', r)
+    print('Configuration succesfull, with the following gNMI SetResponse:\n', r)
     return json.dumps(json_value)
 
 

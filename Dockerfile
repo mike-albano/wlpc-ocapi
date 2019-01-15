@@ -11,7 +11,7 @@ ADD ./gnmi/proto/gnmi_ext/gnmi_* /home/user/client_app/
 ENV PYBINDPLUGIN=/usr/local/lib/python2.7/site-packages/pyangbind/plugin
 
 # Utils
-RUN apt-get update && apt-get install -y net-tools && apt-get install -y vim
+RUN apt-get update && apt-get install -y net-tools && apt-get install -y vim && apt-get install nano
 RUN python -m pip install --no-binary=protobuf -I grpcio-tools==1.15.0
 RUN python -m pip install pyang==1.7.5
 RUN python -m pip install pyangbind==0.8.1
