@@ -74,23 +74,29 @@ def ParsePath(p_names):
   return gnmi_pb2.Path(elem=gnmi_elems)
 
 
-def CreateCreds(target, port, root_cert):
+def CreateCreds(target, port, get_cert, root_cert, cert_chain, private_key):
   """Define credentials used in gNMI Requests.
 
   Args:
     target: (str) gNMI Target.
     port: (str) gNMI Target IP port.
-    root_cert: (str) Root certificate file to use in the gRPC secure channel.
+    get_cert: (str) Certificate should be obtained from Target for gRPC channel.
+    root_cert: (str) Root certificate to use in the gRPC channel.
+    cert_chain: (str) Certificate chain to use in the gRPC channel.
+    private_key: (str) Private key to use in the gRPC channel.
 
   Returns:
     a gRPC.ssl_channel_credentials object.
   """
-  if not root_cert:
-    root_cert = ssl.get_server_certificate((target, port)).encode('utf-8')
+  if get_cert:
+    print('Obtaining certificate from Target')
+    rcert = ssl.get_server_certificate((target, port)).encode('utf-8')
     return gnmi_pb2_grpc.grpc.ssl_channel_credentials(
-        root_certificates=root_cert, private_key=None, certificate_chain=None)
+        root_certificates=rcert, private_key=private_key,
+        certificate_chain=cert_chain)
   return gnmi_pb2_grpc.grpc.ssl_channel_credentials(
-      root_certificates=root_cert, private_key=None, certificate_chain=None)
+    root_certificates=root_cert, private_key=private_key,
+    certificate_chain=cert_chain)
 
 
 def CreateStub(creds, target, port, host_override):

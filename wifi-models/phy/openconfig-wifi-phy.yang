@@ -67,7 +67,6 @@ module openconfig-wifi-phy {
 
     leaf enabled {
       type boolean;
-      default "true";
       description
         "The desired operational state (up/down) of this radio interface.";
     }
@@ -75,7 +74,6 @@ module openconfig-wifi-phy {
     leaf transmit-power {
       type uint8;
       units dBm;
-      default 9;
       description
         "Transmit power of the radio, in dBm.";
     }
@@ -92,7 +90,6 @@ module openconfig-wifi-phy {
     leaf channel-width {
       type uint8;
       units MHz;
-      default 20;
       description
         "Operating channel-width of this radio.";
     }

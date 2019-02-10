@@ -67,7 +67,6 @@ module openconfig-wifi-mac {
 
     leaf hidden {
       type boolean;
-      default "false";
       description
         "Whether this SSID IE is hidden within Beacons.";
     }
@@ -95,7 +94,6 @@ module openconfig-wifi-mac {
       type identityref {
         base oc-wifi-types:OPERATING_FREQUENCY;
       }
-      default "oc-wifi-types:FREQ_2_5_GHZ";
       description
         "Operating frequency of this SSID. When none specified, the
         default is dual-band.";
@@ -175,7 +173,6 @@ module openconfig-wifi-mac {
             "WPA2-Enterprise with 802.1X authentication.";
         }
       }
-      default "OPEN";
       description
         "The type of Layer2 authentication in use.";
     }

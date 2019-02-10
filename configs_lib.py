@@ -34,12 +34,13 @@ def GnmiSetUp(ap):
     ap: AP Class object.
   """
   if ap.targetport == '443':  # Target is ap-mgr.
-    root_cert=six.moves.builtins.open('mist-ca.cert.pem', 'rb').read()
-    creds = gnmi_lib.CreateCreds(ap.targetip, ap.targetport, root_cert)
+    creds = gnmi_lib.CreateCreds(ap.targetip, ap.targetport, None, None,
+                                 None, None)
     ap.stub = gnmi_lib.CreateStub(creds, ap.targetip, ap.targetport,
                                   'openconfig.mist.com')
   elif ap.targetport == '8080':  # Targt is AP
-    creds = gnmi_lib.CreateCreds(ap.targetip, ap.targetport, None)
+    creds = gnmi_lib.CreateCreds(ap.targetip, ap.targetport, ' ', None,
+                                 None, None)
     ap.stub = gnmi_lib.CreateStub(creds, ap.targetip, ap.targetport,
                                   'openconfig.mojonetworks.com')
   elif ap.targetport == '10161':  # Target is ap-mgr.
@@ -100,8 +101,6 @@ def ConfigPhyMac(ap, student_ssids):
   open_ssid.config.enabled = True
   open_ssid.config.hidden = False
   open_ssid.config.operating_frequency = 'FREQ_5GHZ'
-  #open_ssid.config.basic_data_rates = ['RATE_36MB', 'RATE_48MB', 'RATE_54MB']
-  #open_ssid.config.supported_data_rates = ['RATE_36MB', 'RATE_48MB', 'RATE_54MB']
   open_ssid.config.opmode = 'OPEN'
   open_ssid.wmm.config.trust_dscp = True
   psk_ssid = ap_configs[ap.ap_name].ssids.ssid.add(ap.pskssid)
@@ -109,8 +108,6 @@ def ConfigPhyMac(ap, student_ssids):
   psk_ssid.config.name = ap.pskssid
   psk_ssid.config.hidden = False
   psk_ssid.config.operating_frequency = 'FREQ_2_5_GHZ'
-  #psk_ssid.config.basic_data_rates = ['RATE_36MB', 'RATE_48MB', 'RATE_54MB']
-  #psk_ssid.config.supported_data_rates = ['RATE_36MB', 'RATE_48MB', 'RATE_54MB']
   psk_ssid.config.opmode = 'WPA2_PERSONAL'
   psk_ssid.config.wpa2_psk = 'testing123'
   psk_ssid.wmm.config.trust_dscp = True

@@ -1,10 +1,25 @@
-"""python3 CLI utility for interacting with Network Elements using gNMI.
+"""Copyright 2018 Google LLC
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    https://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+
+python3 CLI utility for interacting with Network Elements using gNMI.
 
 This utility can be utilized as a reference, or standalone utility, for
 interacting with Network Elements which support OpenConfig and gNMI.
 
 Current supported gNMI features:
 - GetRequest
+- SetRequest (Update, Replace, Delete)
 - Target hostname override
 - Auto-loads Target cert from Target if not specified
 - User/password based authentication
@@ -26,12 +41,13 @@ import ssl
 import sys
 import six
 try:
-  import gnmi_pb2  # pylint: disable=g-import-not-at-top
+  import gnmi_pb2
 except ImportError:
   print('ERROR: Ensure you have grpcio-tools installed; eg\n'
         'sudo apt-get install -y pip\n'
         'sudo pip install --no-binary=protobuf -I grpcio-tools==1.15.0')
-import gnmi_pb2_grpc  # pylint: disable=g-import-not-at-top
+import gnmi_pb2_grpc
+
 __version__ = '0.3'
 
 _RE_PATH_COMPONENT = re.compile(r'''
@@ -106,6 +122,9 @@ def _create_parser():
                       'quallified path to Certificate chain to use when'
                       'establishing a gNMI Channel to the Target', default=None,
                       required=False)
+  parser.add_argument('-g', '--get_cert', help='Obtain certificate from gNMI '
+                      'Target when establishing secure gRPC channel.',
+                      required=False, action='store_true')
   parser.add_argument('-x', '--xpath', type=str, help='The gNMI path utilized'
                       'in the GetRequest or Subscirbe', required=True)
   parser.add_argument('-o', '--host_override', type=str, help='Use this as '
@@ -192,25 +211,18 @@ def _format_type(json_value):
 
   Returns:
     json_value: The provided input coerced into proper Python Type.
-
-  Raises:
-    FindTypeError: If the Type of value can not be identified.
   """
-  if json_value.isdigit():  # Unsigned integer
+  if (json_value.startswith('-') and json_value[1:].isdigit()) or (
+      json_value.isdigit()):
     return int(json_value)
-  if json_value.startswith('-') and json_value[1:].isdigit():  # Signed Int.
-    return int(json_value)
-  if json_value.startswith('-') and json_value[1].isdigit():  # Signed Float.
-    return float(json_value)
-  if json_value[0].isdigit():  # Signed Float.
+  if (json_value.startswith('-') and json_value[1].isdigit()) or (
+      json_value[0].isdigit()):
     return float(json_value)
   if json_value.capitalize() == 'True':
     return True
   if json_value.capitalize() == 'False':
     return False
-  if isinstance(json_value, str):
-    return json_value
-  raise FindTypeError('Could not identify Type of value provided by -val.')
+  return json_value  # The value is a string.
 
 
 def _get_val(json_value):
@@ -274,51 +286,60 @@ def _set(stub, paths, set_type, username, password, json_value):
   """
   if json_value:  # Specifying ONLY a path is possible.
     val = _get_val(json_value)
-  else:
-    val = gnmi_pb2.TypedValue()
   path_val = gnmi_pb2.Update(path=paths, val=val,)
 
+  kwargs = {}
   if username:
-    metadata = [('username', username), ('password', password)]
-    if set_type == 'delete':
-      return stub.Set(gnmi_pb2.SetRequest(delete=[paths]), metadata=metadata)
-    elif set_type == 'update':
-      return stub.Set(gnmi_pb2.SetRequest(update=[path_val]), metadata=metadata)
-    return stub.Set(gnmi_pb2.SetRequest(replace=[path_val]), metadata=metadata)
+    kwargs = {'metadata': [('username', username), ('password', password)]}
   if set_type == 'delete':
-    return stub.Set(gnmi_pb2.SetRequest(delete=[paths]),)
+    return stub.Set(gnmi_pb2.SetRequest(delete=[paths]), **kwargs)
   elif set_type == 'update':
-    return stub.Set(gnmi_pb2.SetRequest(update=[path_val]),)
-  return stub.Set(gnmi_pb2.SetRequest(replace=[path_val]),)
+    return stub.Set(gnmi_pb2.SetRequest(update=[path_val]), **kwargs)
+  return stub.Set(gnmi_pb2.SetRequest(replace=[path_val]), **kwargs)
 
 
-def _build_creds(target, port, root_cert, cert_chain, private_key):
+def _build_creds(target, port, get_cert, root_cert, cert_chain, private_key):
   """Define credentials used in gNMI Requests.
 
   Args:
     target: (str) gNMI Target.
     port: (str) gNMI Target IP port.
-    root_cert: (str) Root certificate file to use in the gRPC secure channel.
-    cert_chain: (str) Certificate chain file to use in the gRPC secure channel.
-    private_key: (str) Private key file to use in the gRPC secure channel.
+    get_cert: (str) Certificate should be obtained from Target for gRPC channel.
+    root_cert: (str) Root certificate to use in the gRPC channel.
+    cert_chain: (str) Certificate chain to use in the gRPC channel.
+    private_key: (str) Private key to use in the gRPC channel.
 
   Returns:
     a gRPC.ssl_channel_credentials object.
   """
-  if not root_cert:
-    logging.warning('No certificate supplied, obtaining from Target')
-    root_cert = ssl.get_server_certificate((target, port)).encode('utf-8')
+  if get_cert:
+    logging.info('Obtaining certificate from Target')
+    rcert = ssl.get_server_certificate((target, port)).encode('utf-8')
     return gnmi_pb2_grpc.grpc.ssl_channel_credentials(
-        root_certificates=root_cert, private_key=None, certificate_chain=None)
-  elif not cert_chain:
-    logging.info('Only user/pass in use for Authentication')
-    return gnmi_pb2_grpc.grpc.ssl_channel_credentials(
-        root_certificates=six.moves.builtins.open(root_cert, 'rb').read(),
-        private_key=None, certificate_chain=None)
+        root_certificates=rcert, private_key=private_key,
+        certificate_chain=cert_chain)
   return gnmi_pb2_grpc.grpc.ssl_channel_credentials(
-      root_certificates=six.moves.builtins.open(root_cert, 'rb').read(),
-      private_key=six.moves.builtins.open(private_key, 'rb').read(),
-      certificate_chain=six.moves.builtins.open(cert_chain, 'rb').read())
+    root_certificates=root_cert, private_key=private_key,
+    certificate_chain=cert_chain)
+
+
+def _open_certs(**kwargs):
+  """Opens provided certificate files.
+
+  Args:
+    root_cert: (str) Root certificate file to use in the gRPC channel.
+    cert_chain: (str) Certificate chain file to use in the gRPC channel.
+    private_key: (str) Private key file to use in the gRPC channel.
+
+  Returns:
+    root_cert: (str) Root certificate to use in the gRPC channel.
+    cert_chain: (str) Certificate chain to use in the gRPC channel.
+    private_key: (str) Private key to use in the gRPC channel.
+  """
+  for key, value in kwargs.items():
+    if value:
+      kwargs[key] = six.moves.builtins.open(value, 'rb').read()
+  return kwargs
 
 
 def main():
@@ -333,6 +354,7 @@ def main():
   mode = args['mode']
   target = args['target']
   port = args['port']
+  get_cert = args['get_cert']
   root_cert = args['root_cert']
   cert_chain = args['cert_chain']
   json_value = args['value']
@@ -343,7 +365,11 @@ def main():
   password = args['password']
   form = args['format']
   paths = _parse_path(_path_names(xpath))
-  creds = _build_creds(target, port, root_cert, cert_chain, private_key)
+  kwargs = {'root_cert': root_cert, 'cert_chain': cert_chain,
+            'private_key': private_key}
+  certs = _open_certs(**kwargs)
+  creds = _build_creds(target, port, get_cert, certs['root_cert'],
+                       certs['cert_chain'], certs['private_key'])
   stub = _create_stub(creds, target, port, host_override)
   if mode == 'get':
     print('Performing GetRequest, encoding=JSON_IETF', 'to', target,

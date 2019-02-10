@@ -25,7 +25,7 @@ GNMI_TARGETPORTS = {'mist': '443', 'arista': '8080', 'cisco': '10161', 'aruba':
 CENTRAL_APMANAGER = ['mist', 'cisco']
 ARISTA_USER = 'admin'
 ARISTA_PASS = 'admin'
-MIST_USER = 'admin'
+MIST_USER = 'admin@example.net'
 MIST_PASS = 'admin'
 USAGE = """USAGE:\n
   gnmicli.py --mode provision  (Provisions AP using provision-aps container)
