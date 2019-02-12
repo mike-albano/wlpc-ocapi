@@ -1,0 +1,17 @@
+# Provision an Arista AP by using the JSON file "dry_run_provision.json"
+python py_gnmicli.py -t 192.168.1.10 -p 8080 -x /provision-aps/provision-ap[mac=00:11:22:33:44:55]/ -m set-update -user admin -pass admin -o openconfig.mojonetworks.com -g -val @dry_run_provision.json
+
+# Provision a Mist AP by using the JSON file "dry_run_provision.json"
+python py_gnmicli.py -t openconfig.mist.com -p 443 -x /provision-aps/provision-ap[mac=00:11:22:33:44:55]/ -m set-update -user admin@example.net -pass admin -val @dry_run_provision.json
+
+# gNMIGet configured channel of an Arista AP
+python py_gnmicli.py -t 192.168.1.10 -p 8080 -x /access-points/access-point[hostname=mikes-fancy-ap]/radios/radio[id=0]/config/channel -m get -user admin -pass admin -o openconfig.mojonetworks.com -g
+
+# gNMIGet configured channel of a Mist AP
+python py_gnmicli.py -t openconfig.mist.com -p 443 -x /access-points/access-point[hostname=mikes-fancy-ap]/radios/radio[id=0]/config/channel -m get -user admin@example.net -pass admin
+
+# gNMISet channel of an Arista AP
+python py_gnmicli.py -t 192.168.1.10 -p 8080 -x /access-points/access-point[hostname=mikes-fancy-ap]/radios/radio[id=0]/config/channel -m set-update -user admin -pass admin -o openconfig.mojonetworks.com -g -val 36
+
+# gNMISet channel of a Mist AP
+python py_gnmicli.py -t openconfig.mist.com -p 443 -x /access-points/access-point[hostname=mikes-fancy-ap]/radios/radio[id=0]/config/channel -m set-update -user admin@example.net -pass admin -val 36

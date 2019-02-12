@@ -207,11 +207,14 @@ def main(unused_argv):
   if not FLAGS.mode:
     print(constants.USAGE)
     sys.exit()
-  gnmi_target = '<target_ip_here>:8080'  # Target IP/FQDN:TCP_PORT.
+  #### Customize the following in class. ####
+  # The followig would be openconfig.mist.com:443 if using Mist AP
+  gnmi_target = '<ap_ip_here>:8080'  # Target IP/FQDN:TCP_PORT.
   ap_name = 'tester-01-albano.example.net'  # Your desired AP FQDN.
   ap_mac = '00:11:74:87:C0:7F'  # Your APs Eth MAC.
   # Change the following if you want. The first one will be 'open', second 'psk'
   student_ssids = ['student1_open', 'student1_psk']
+  #### End customization ####
   ap = _create_apobj(gnmi_target, ap_name, ap_mac, student_ssids)
   if not FLAGS.dry_run:
     configs_lib.GnmiSetUp(ap)  # Set up gNMI for each AP.

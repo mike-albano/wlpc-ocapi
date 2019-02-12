@@ -1,0 +1,77 @@
+module openconfig-interface-broken {
+
+  yang-version "1";
+
+  namespace "http://example.net/yang/interface/";
+
+  prefix "oc-interface";
+
+  import openconfig-extensions { prefix oc-ext; }
+
+  organization "OpenConfig working group";
+
+  contact
+    "OpenConfig working group
+    netopenconfig@googlegroups.com";
+
+  description
+    "Model for configuration and State data related
+    to ifconfig input and output.";
+
+  oc-ext:openconfig-version "0.0.1";
+
+  revision "2018-09-25" {
+    description
+      "Initial model for lab use."
+    reference "0.0.1";
+  }
+
+  grouping interfaces-config {
+    description
+      "Configuration data for the interface.";
+
+    leaf enabled {
+      type boolean;
+      description
+        "This leaf enabled and disabled the interface.";
+    }
+  }
+
+  grouping interfaces-state {
+    description
+      "Operational state data.";
+
+     leaf rx-packets {
+       type uint32;
+       description
+         "Received packets on the interface.";
+     }
+  }
+
+  grouping interfaces-top {
+    description
+      "Top-level grouping for interfaces.";
+
+    container interfaces {
+       description
+         "Top-level container for interfaces.";
+
+      container config {
+        description
+          "Configuration data for interfaces.";
+
+        uses interfaces-config;
+      }
+
+      container state {
+        config false;
+        description
+          "Operational State data for interfaces.";
+
+        uses interfaces-config;
+        uses interfaces-state;
+      }
+    }
+  }
+  uses interfaces-top;
+}
