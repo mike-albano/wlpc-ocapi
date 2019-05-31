@@ -1,2 +1,2 @@
 # wlpc-ocapi
-gNMI Client Container used in WLPC APIs by Example lessons.
+Refer to "[WLPC] APIs by Example - DOC.pdf" and "[WLPC] APIs by Example - DECK.pdf" for this lesson plan.
