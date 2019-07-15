@@ -1,0 +1,77 @@
+version: '2'
+services:
+  grpcserver:
+    hostname: grpcserver
+    image: mike909/wlpc-grpcserver:v1
+    container_name: grpcserver
+    stdin_open: true
+    tty: true
+    networks:
+      ocnet:
+        ipv4_address: 172.20.0.2
+    command: /bin/bash
+
+  grpcclient:
+    hostname: grpcclient
+    image: mike909/wlpc-grpcclient:v1
+    container_name: grpcclient
+    stdin_open: true
+    tty: true
+    networks:
+      ocnet:
+        ipv4_address: 172.20.0.3
+    command: /bin/bash
+
+  gnmitarget:
+    hostname: gnmitarget
+    image: mike909/wlpc-gnmitarget:v1
+    container_name: gnmitarget
+    stdin_open: true
+    tty: true
+    networks:
+      ocnet:
+        ipv4_address: 172.20.0.4
+    command: go run /go/src/github.com/google/gnxi/gnmi_target/gnmi_target.go -bind_address :10161 -config interface.json -key /home/user/server.key -cert /home/user/server.crt -ca /home/user/server-ca.crt -username foo -password bar -alsologtostderr
+
+  gnmiclient:
+    hostname: gnmiclient
+    image: mike909/wlpc-gnmiclient:v1
+    container_name: gnmiclient
+    stdin_open: true
+    tty: true
+    networks:
+      ocnet:
+        ipv4_address: 172.20.0.7
+    extra_hosts:
+       - "www.example.com:172.20.0.4"
+    command: /bin/bash
+
+  influxdb:
+    hostname: influxdb
+    image: mike909/influxdb:v1
+    container_name: influxdb
+    stdin_open: true
+    tty: true
+    networks:
+      ocnet:
+        ipv4_address: 172.20.0.5
+
+  grafana:
+    hostname: grafana
+    image: mike909/grafana:v1
+    container_name: grafana
+    stdin_open: true
+    tty: true
+    networks:
+      ocnet:
+        ipv4_address: 172.20.0.6
+    ports:
+      - "3000:3000"
+
+networks:
+  ocnet:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.20.0.0/24
+          gateway: 172.20.0.1
